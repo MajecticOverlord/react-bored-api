@@ -1,15 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import _ from "lodash";
 
-// const http = httpFactory({
-//   baseURL: process.env.BORED_API,
-//   timeout: 60000,
-//   withCredentials: true,
-//   headers: { "Content-Type": "application/json" },
-//   responseType: "json"
-// });
-
-export const httpFactory = (params: AxiosRequestConfig) => {
+const httpFactory = (params: AxiosRequestConfig) => {
   const httpClient: AxiosInstance = axios.create(params);
   return {
     get instance(): AxiosInstance {
@@ -22,47 +14,54 @@ export const httpFactory = (params: AxiosRequestConfig) => {
       return config;
     },
 
-    async request(config?: AxiosRequestConfig): Promise<AxiosResponse> {
-      const response = await this.instance.request(this.combineConfig(config));
+    async request<T = any>(
+      config?: AxiosRequestConfig
+    ): Promise<AxiosResponse<T>> {
+      const response = await this.instance.request<T>(
+        this.combineConfig(config)
+      );
       return response;
     },
 
-    async get(
+    async get<T = any>(
       url: string,
       config?: AxiosRequestConfig
-    ): Promise<AxiosResponse> {
-      const response = await this.instance.get(url, this.combineConfig(config));
-      return response;
-    },
-
-    async delete(
-      url: string,
-      config?: AxiosRequestConfig
-    ): Promise<AxiosResponse> {
-      const response = await this.instance.delete(
+    ): Promise<AxiosResponse<T>> {
+      const response = await this.instance.get<T>(
         url,
         this.combineConfig(config)
       );
       return response;
     },
 
-    async head(
+    async delete<T = any>(
       url: string,
       config?: AxiosRequestConfig
-    ): Promise<AxiosResponse> {
-      const response = await this.instance.head(
+    ): Promise<AxiosResponse<T>> {
+      const response = await this.instance.delete<T>(
         url,
         this.combineConfig(config)
       );
       return response;
     },
 
-    async post(
+    async head<T = any>(
+      url: string,
+      config?: AxiosRequestConfig
+    ): Promise<AxiosResponse<T>> {
+      const response = await this.instance.head<T>(
+        url,
+        this.combineConfig(config)
+      );
+      return response;
+    },
+
+    async post<T = any>(
       url: string,
       data?: any,
       config?: AxiosRequestConfig
-    ): Promise<AxiosResponse> {
-      const response = await this.instance.post(
+    ): Promise<AxiosResponse<T>> {
+      const response = await this.instance.post<T>(
         url,
         data,
         this.combineConfig(config)
@@ -70,12 +69,12 @@ export const httpFactory = (params: AxiosRequestConfig) => {
       return response;
     },
 
-    async put(
+    async put<T = any>(
       url: string,
       data?: any,
       config?: AxiosRequestConfig
-    ): Promise<AxiosResponse> {
-      const response = await this.instance.put(
+    ): Promise<AxiosResponse<T>> {
+      const response = await this.instance.put<T>(
         url,
         data,
         this.combineConfig(config)
@@ -83,12 +82,12 @@ export const httpFactory = (params: AxiosRequestConfig) => {
       return response;
     },
 
-    async patch(
+    async patch<T = any>(
       url: string,
       data?: any,
       config?: AxiosRequestConfig
-    ): Promise<AxiosResponse> {
-      const response = await this.instance.patch(
+    ): Promise<AxiosResponse<T>> {
+      const response = await this.instance.patch<T>(
         url,
         data,
         this.combineConfig(config)
@@ -97,3 +96,4 @@ export const httpFactory = (params: AxiosRequestConfig) => {
     }
   };
 };
+export default httpFactory;

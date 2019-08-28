@@ -1,25 +1,11 @@
 import React, { createContext, useReducer } from "react";
+import {
+  IActivitiesState,
+  IActivitiesAction,
+  IActivitiesContext,
+  IActivitiesProviderProps
+} from "models/Activities";
 import _ from "lodash";
-
-export interface IActivity {}
-
-export interface IActivitiesState {
-  activities: IActivity[];
-}
-
-export interface IActivitiesAction {
-  type: string;
-  payload: IActivity | string | number;
-}
-
-export interface IActivitiesContext {
-  state: IActivitiesState;
-  dispatch: React.Dispatch<IActivitiesAction>;
-}
-
-export interface IActivitiesProviderProps {
-  initialState?: IActivitiesState;
-}
 
 const defaultState: IActivitiesState = { activities: [] };
 const defaultDispatch: React.Dispatch<IActivitiesAction> = value => undefined;
@@ -30,9 +16,12 @@ const ActivitiesReducer = (
 ) => {
   switch (action.type) {
     case "add":
-      // if (_.isPlainObject(action.payload)) {
-      state.activities = [...state.activities, action.payload];
-      // }
+      if (
+        typeof action.payload === "object" &&
+        _.isPlainObject(action.payload)
+      ) {
+        state.activities = [...state.activities, action.payload];
+      }
       return { ...state };
     default:
       return state;
