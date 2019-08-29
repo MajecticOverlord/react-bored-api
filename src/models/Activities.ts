@@ -14,7 +14,7 @@ export interface IActivitiesState {
 
 export interface IActivitiesAction {
   type: string;
-  payload: IActivity | string | number;
+  payload?: IActivity | string | number | undefined;
 }
 
 export interface IActivitiesContext {

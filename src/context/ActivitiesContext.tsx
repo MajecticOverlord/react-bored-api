@@ -23,6 +23,9 @@ const ActivitiesReducer = (
         state.activities = [...state.activities, action.payload];
       }
       return { ...state };
+    case "cleanUp":
+      state.activities = defaultState.activities;
+      return { ...state };
     default:
       return state;
   }

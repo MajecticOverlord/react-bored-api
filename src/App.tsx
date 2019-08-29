@@ -1,6 +1,19 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { IActivity } from "models/Activities";
-import { getActivities, setActivity } from "utilities/storage";
+import {
+  Tabs,
+  Nav,
+  NavTabs,
+  NavItem,
+  TabContent,
+  TabPane
+} from "components/Tabs";
+import {
+  getActivities,
+  setActivity,
+  removeActivities
+} from "utilities/storage";
 import { http, fetchActivity } from "utilities/api";
 import _ from "lodash";
 import "scss/index.scss";
@@ -12,6 +25,7 @@ import {
 
 const Test: React.FC = () => {
   const { state, dispatch } = useContext(ActivitiesContext);
+
   useEffect(() => {
     fetchActivity().then(activity => {
       setTimeout(() => {
@@ -20,11 +34,20 @@ const Test: React.FC = () => {
       }, 1500);
     });
   }, []);
+
+  const resetHandler = () => {
+    dispatch({ type: "cleanUp" });
+    removeActivities();
+  };
+
   return (
     <>
-      {_.map(state.activities, (item, index) => (
+      <button type="button" onClick={resetHandler}>
+        Reset
+      </button>
+      {_.map(state.activities, (_activity, index) => (
         <div key={index}>
-          {index} - {item.activity}
+          {index} - {_activity.activity}
         </div>
       ))}
     </>
@@ -36,7 +59,58 @@ const App: React.FC = () => {
   return (
     <>
       <ActivitiesProvider initialState={{ activities }}>
-        <Test />
+        <Tabs>
+          <Nav>
+            <NavTabs>
+              <NavItem label="Search activity" name="search" />
+              <NavItem label="My activities" name="list" />
+            </NavTabs>
+          </Nav>
+          <TabContent>
+            <TabPane name="search">
+              <div>
+                <div>
+                  <div>You should</div>
+                  <div>...</div>
+                </div>
+                <div>
+                  <div>Search</div>
+                  <div>
+                    <div>
+                      <div>Type</div>
+                      <div>
+                        <select>
+                          {_.map(
+                            [
+                              "education",
+                              "recreational",
+                              "social",
+                              "diy",
+                              "charity",
+                              "cooking",
+                              "relaxation",
+                              "music",
+                              "busywork"
+                            ],
+                            type => (
+                              <option key={type} value={type}>
+                                {type}
+                              </option>
+                            )
+                          )}
+                        </select>
+                      </div>
+                    </div>
+                    <div></div>
+                  </div>
+                </div>
+              </div>
+            </TabPane>
+            <TabPane name="list">
+              <Test />
+            </TabPane>
+          </TabContent>
+        </Tabs>
       </ActivitiesProvider>
     </>
   );
