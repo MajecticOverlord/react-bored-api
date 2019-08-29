@@ -15,16 +15,25 @@ const ActivitiesReducer = (
   action: IActivitiesAction
 ) => {
   switch (action.type) {
+    case "setup":
+      if (
+        typeof action.payload === "object" &&
+        _.isArrayLikeObject(action.payload)
+      ) {
+        state.activities = [...action.payload];
+      }
+      return { ...state };
     case "add":
       if (
         typeof action.payload === "object" &&
-        _.isPlainObject(action.payload)
+        _.isPlainObject(action.payload) &&
+        !_.isArrayLikeObject(action.payload)
       ) {
         state.activities = [...state.activities, action.payload];
       }
       return { ...state };
-    case "cleanUp":
-      state.activities = defaultState.activities;
+    case "cleanup":
+      state.activities = [];
       return { ...state };
     default:
       return state;

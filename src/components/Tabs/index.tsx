@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import PropTypes from "prop-types";
+import { addClassName } from "utilities/functions";
 import _ from "lodash";
 
 export const Nav: React.FC<any> = ({ children }) => {
@@ -17,10 +18,13 @@ export const NavItem: React.FC<any> = ({
   selectedIndex,
   doSelect
 }) => {
-  let isActive =
+  const ref = useRef<HTMLAnchorElement | null>(null);
+  const isActive =
     !_.isNil(index) && !_.isNil(selectedIndex) && _.eq(index, selectedIndex);
+
   return (
     <a
+      ref={ref}
       className={`nav-item nav-link ${isActive && "active"}`}
       id={`nav-${name}-tab`}
       data-toggle="tab"
@@ -53,11 +57,19 @@ export const TabPane: React.FC<any> = ({
   selectedIndex,
   children
 }) => {
-  let isActive =
+  const ref = useRef<HTMLDivElement | null>(null);
+  const isActive =
     !_.isNil(index) && !_.isNil(selectedIndex) && _.eq(index, selectedIndex);
+
+  const timeout = setTimeout(() => {
+    if (!_.isNil(ref.current) && isActive) addClassName(ref.current, "show");
+    clearTimeout(timeout);
+  }, 300);
+
   return (
     <div
-      className={`tab-pane fade ${isActive && "show active"}`}
+      ref={ref}
+      className={`tab-pane fade ${isActive && "active"}`}
       id={`${name}`}
       role="tabpanel"
       aria-labelledby={`${name}-tab`}

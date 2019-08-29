@@ -1,1 +1,40 @@
 @import "./bootstrap";
+
+// Reset
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+// Custom
+$multiRangeHeight: 2rem;
+input[type="range"][multiple] {
+  display: block;
+  height: $multiRangeHeight;
+  margin: 0;
+  pointer-events: none;
+
+  & + input[type="range"][multiple] {
+    margin-top: $multiRangeHeight * -1;
+  }
+}
+
+@mixin multirange-thumb {
+  pointer-events: all;
+}
+input[type="range"]::-webkit-slider-thumb {
+  @include multirange-thumb;
+}
+input[type="range"]::-moz-range-thumb {
+  @include multirange-thumb;
+}
+input[type="range"]::-ms-thumb {
+  @include multirange-thumb;
+}

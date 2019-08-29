@@ -14,7 +14,7 @@ export interface IActivitiesState {
 
 export interface IActivitiesAction {
   type: string;
-  payload?: IActivity | string | number | undefined;
+  payload?: IActivity | IActivity[] | string | number | undefined;
 }
 
 export interface IActivitiesContext {
@@ -33,4 +33,5 @@ export interface IActivityParams {
   maxprice?: number;
   participants?: number;
   type?: string;
+  key?: string;
 }
