@@ -25,7 +25,7 @@ export const NavItem: React.FC<any> = ({
   return (
     <a
       ref={ref}
-      className={`nav-item nav-link ${isActive && "active"}`}
+      className={`nav-item nav-link ${isActive ? "active" : ""}`}
       id={`nav-${name}-tab`}
       data-toggle="tab"
       href={`#nav-${name}`}
@@ -69,7 +69,7 @@ export const TabPane: React.FC<any> = ({
   return (
     <div
       ref={ref}
-      className={`tab-pane fade ${isActive && "active"}`}
+      className={`tab-pane fade ${isActive ? "active" : ""}`}
       id={`${name}`}
       role="tabpanel"
       aria-labelledby={`${name}-tab`}

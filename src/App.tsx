@@ -73,16 +73,7 @@ const Layout: React.FC<any> = ({ children }) => {
   return <main>{children}</main>;
 };
 
-const changeFilterFactory = (
-  state: any,
-  setState: React.Dispatch<React.SetStateAction<any>>
-) =>
-  _.debounce((params: Partial<IActivityParams>) => {
-    setState(_.merge({}, state, params));
-  }, 300);
-
-const App: React.FC<any> = () => {
-  // TODO
+const SearchContainer: React.FC<any> = () => {
   const [filter, setFilter] = useState<IActivityParams>({
     type: undefined,
     participants: undefined,
@@ -114,6 +105,101 @@ const App: React.FC<any> = () => {
 
   return (
     <>
+      <div>
+        <div>
+          <div>You should</div>
+          <div>...</div>
+        </div>
+
+        <Form>
+          <div>Search Activity</div>
+          <div>
+            <div className="form-group">
+              <label htmlFor="filter-type">Type</label>
+              <SelectBox
+                id="filter-type"
+                className="form-control"
+                name="type"
+                onChange={($event: any) => {
+                  const type = $event;
+                  changeFilter({ type });
+                }}
+              >
+                {_.map(types, type => (
+                  <SelectBoxOption key={type} value={type}>
+                    {type}
+                  </SelectBoxOption>
+                ))}
+              </SelectBox>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="filter-participants">Participants</label>
+              <InputBox
+                id="filter-participants"
+                className="form-control"
+                name="participants"
+                type="number"
+                min="0"
+                onChange={($event: any) => {
+                  const participants = $event;
+                  changeFilter({ participants });
+                }}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="filter-price">Price</label>
+              <RangeMultiple
+                id="filter-price"
+                className="form-control-range"
+                name="price"
+                min="0"
+                max="1"
+                step="0.1"
+                onChange={($event: [number, number]) => {
+                  const [minprice, maxprice] = $event;
+                  changeFilter({ minprice, maxprice });
+                }}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="filter-accessibility">Accessibility</label>
+              <RangeMultiple
+                id="filter-accessibility"
+                className="form-control-range"
+                name="accessibility"
+                min="0"
+                max="1"
+                step="0.1"
+                onChange={($event: [number, number]) => {
+                  const [minaccessibility, maxaccessibility] = $event;
+                  changeFilter({
+                    minaccessibility,
+                    maxaccessibility
+                  });
+                }}
+              />
+            </div>
+          </div>
+        </Form>
+      </div>
+    </>
+  );
+};
+
+const ListContainer: React.FC<any> = () => {
+  return (
+    <>
+      <Test />
+    </>
+  );
+};
+
+const App: React.FC<any> = () => {
+  return (
+    <>
       <ActivitiesProvider>
         <Layout>
           <Tabs>
@@ -125,93 +211,10 @@ const App: React.FC<any> = () => {
             </Nav>
             <TabContent>
               <TabPane name="search">
-                <div>
-                  <div>
-                    <div>You should</div>
-                    <div>...</div>
-                  </div>
-
-                  <Form>
-                    <div>Search Activity</div>
-                    <div>
-                      <div className="form-group">
-                        <label htmlFor="filter-type">Type</label>
-                        <SelectBox
-                          id="filter-type"
-                          className="form-control"
-                          name="type"
-                          onChange={($event: any) => {
-                            const type = $event;
-                            changeFilter({ type });
-                          }}
-                        >
-                          {_.map(types, type => (
-                            <SelectBoxOption key={type} value={type}>
-                              {type}
-                            </SelectBoxOption>
-                          ))}
-                        </SelectBox>
-                      </div>
-
-                      <div className="form-group">
-                        <label htmlFor="filter-participants">
-                          Participants
-                        </label>
-                        <InputBox
-                          id="filter-participants"
-                          className="form-control"
-                          name="participants"
-                          type="number"
-                          min="0"
-                          onChange={($event: any) => {
-                            const participants = $event;
-                            changeFilter({ participants });
-                          }}
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label htmlFor="filter-price">Price</label>
-                        <RangeMultiple
-                          id="filter-price"
-                          className="form-control"
-                          name="price"
-                          min="0"
-                          max="1"
-                          step="0.1"
-                          onChange={($event: [number, number]) => {
-                            const [minprice, maxprice] = $event;
-                            changeFilter({ minprice, maxprice });
-                          }}
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label htmlFor="filter-accessibility">
-                          Accessibility
-                        </label>
-                        <RangeMultiple
-                          id="filter-accessibility"
-                          className="form-control"
-                          name="accessibility"
-                          min="0"
-                          max="1"
-                          step="0.1"
-                          onChange={($event: [number, number]) => {
-                            const [minaccessibility, maxaccessibility] = $event;
-                            changeFilter({
-                              minaccessibility,
-                              maxaccessibility
-                            });
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </Form>
-                </div>
+                <SearchContainer />
               </TabPane>
               <TabPane name="list">
-                <Test />
+                <ListContainer />
               </TabPane>
             </TabContent>
           </Tabs>
