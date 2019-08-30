@@ -27,17 +27,19 @@ export const fetchActivity = (
     })
     .catch<Error>((error: Error) => {
       console.warn(error);
-      throw error;
+      return Promise.reject(error);
     });
 };
 
 export const fetchActivities = (keys: string[]): Promise<IActivity[] | any> => {
   return Promise.all<IActivity | any>(
     _.map(keys, (key: string) => {
-      return Promise.resolve(fetchActivity({ key }));
+      return fetchActivity({ key }).catch<Error>((error: Error) => {
+        return error;
+      });
     })
   ).then((activities: IActivity[]) => {
-    return activities;
+    return _.filter(activities, activity => !(activity instanceof Error));
   });
 };
 

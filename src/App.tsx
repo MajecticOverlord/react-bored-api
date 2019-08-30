@@ -30,49 +30,6 @@ import {
   ActivitiesProvider
 } from "context/ActivitiesContext";
 
-const Test: React.FC<any> = () => {
-  const { state, dispatch } = useContext(ActivitiesContext);
-
-  useEffect(() => {
-    // fetchActivity().then(activity => {
-    //   setTimeout(() => {
-    //     dispatch({ type: "add", payload: activity });
-    //     setActivityKey(activity.key);
-    //   }, 1500);
-    // });
-  }, []);
-
-  const resetHandler = () => {
-    dispatch({ type: "cleanup" });
-    removeActivitiesKeys();
-  };
-
-  return (
-    <>
-      <button
-        type="button"
-        className="btn btn-danger text-uppercase"
-        onClick={resetHandler}
-      >
-        Reset
-      </button>
-
-      <div className="card">
-        <div className="card-header">My activities</div>
-        {_.gt(_.size(state.activities), 0) && (
-          <ul className="list-group list-group-flush">
-            {_.map(state.activities, (activity, index) => (
-              <li key={index} className="list-group-item">
-                {activity.activity}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </>
-  );
-};
-
 const Loading: React.FC<any> = () => {
   return <div className="loading"></div>;
 };
@@ -81,15 +38,25 @@ const Layout: React.FC<any> = ({ children }) => {
   const { dispatch } = useContext(ActivitiesContext);
 
   useEffect(() => {
-    // fetchActivities(getActivitiesKeys()).then(activities => {
-    //   dispatch({ type: "setup", payload: activities });
-    // });
+    fetchActivities(getActivitiesKeys()).then(activities => {
+      dispatch({ type: "setup", payload: activities });
+    });
   }, []);
 
-  return <main>{children}</main>;
+  return (
+    <main>
+      <div className="container">
+        <div className="row no-gutters">
+          <div className="col-12 px-3 py-3">{children}</div>
+        </div>
+      </div>
+    </main>
+  );
 };
 
 const SearchContainer: React.FC<any> = () => {
+  const { state, dispatch } = useContext(ActivitiesContext);
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [fetchedError, setFetchedError] = useState<string | null>(null);
   const [fetchedActivity, setFetchedActivity] = useState<IActivity | undefined>(
@@ -104,6 +71,11 @@ const SearchContainer: React.FC<any> = () => {
     minaccessibility: undefined,
     maxaccessibility: undefined
   });
+
+  const hasActivity = _.some(state.activities, [
+    "key",
+    _.get(fetchedActivity, "key")
+  ]);
 
   const types = [
     "education",
@@ -124,23 +96,27 @@ const SearchContainer: React.FC<any> = () => {
   const submitForm = _.throttle((event: React.SyntheticEvent) => {
     event.preventDefault();
 
-    let params = _.pickBy(filter, _.negate(_.isNil));
-    if (_.gt(_.size(params), 0)) {
-      setIsLoading(true);
-      setFetchedActivity(undefined);
-      setFetchedError(null);
+    setIsLoading(true);
+    setFetchedActivity(undefined);
+    setFetchedError(null);
 
-      fetchActivity(params)
-        .then(activity => {
-          if (activity instanceof Error) return;
-          setFetchedActivity(activity);
-          setIsLoading(false);
-        })
-        .catch(error => {
-          setFetchedError(error.message);
-          setIsLoading(false);
-        });
-    }
+    let params = _.pickBy(filter, _.negate(_.isNil));
+    fetchActivity(params)
+      .then(activity => {
+        if (activity instanceof Error) return;
+        setFetchedActivity(activity);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        setFetchedError(error.message);
+        setIsLoading(false);
+      });
+  }, 300);
+
+  const saveActivity = _.debounce(() => {
+    if (_.isNil(fetchedActivity) || hasActivity) return;
+    dispatch({ type: "add", payload: fetchedActivity });
+    setActivityKey(fetchedActivity.key);
   }, 300);
 
   let message;
@@ -149,7 +125,7 @@ const SearchContainer: React.FC<any> = () => {
   } else if (!_.isNil(fetchedError)) {
     message = (
       <>
-        <div className="alert alert-danger" role="alert">
+        <div className="alert alert-danger text-center mt-3" role="alert">
           {fetchedError}
         </div>
       </>
@@ -157,10 +133,18 @@ const SearchContainer: React.FC<any> = () => {
   } else if (!_.isNil(fetchedActivity)) {
     message = (
       <>
-        <div className="card">
+        <div className="card text-center mt-3">
           <div className="card-body">
             <div className="card-title h2">You should</div>
-            <div className="card-text">{fetchedActivity.activity}</div>
+            <div className="card-text mb-3">{fetchedActivity.activity}</div>
+            <button
+              type="button"
+              className="btn btn-success text-uppercase"
+              disabled={hasActivity}
+              onClick={saveActivity}
+            >
+              Push
+            </button>
           </div>
         </div>
       </>
@@ -174,9 +158,9 @@ const SearchContainer: React.FC<any> = () => {
 
         <div className="col-6 px-3 py-3">
           <Form onSubmit={submitForm}>
-            <div className="h2">Search Activity</div>
+            <div className="h2 text-center">Search Activity</div>
 
-            <div>
+            <div className="mb-3">
               <div className="form-group">
                 <label htmlFor="filter-type">Type</label>
                 <SelectBox
@@ -247,10 +231,55 @@ const SearchContainer: React.FC<any> = () => {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary text-uppercase">
-              Let's hit
-            </button>
+            <div className="text-center">
+              <button type="submit" className="btn btn-primary text-uppercase" disabled={isLoading}>
+                Let's hit
+              </button>
+            </div>
           </Form>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const MyActivities: React.FC<any> = () => {
+  const { state, dispatch } = useContext(ActivitiesContext);
+
+  const hasActivities = _.gt(_.size(state.activities), 0);
+
+  const resetAllActivities = _.debounce(() => {
+    dispatch({ type: "cleanup" });
+    removeActivitiesKeys();
+  }, 300);
+
+  return (
+    <>
+      <div className="row no-gutters">
+        <div className="col-12">
+          <div className="text-center mt-3">
+            <button
+              type="button"
+              className="btn btn-danger text-uppercase"
+              disabled={!hasActivities}
+              onClick={resetAllActivities}
+            >
+              Reset
+            </button>
+          </div>
+
+          <div className="card text-center mt-3">
+            <div className="card-header">My activities</div>
+            <ul className="list-group list-group-flush">
+              {hasActivities &&
+                _.map(state.activities, (activity, index) => (
+                  <li key={index} className="list-group-item">
+                    {activity.activity}
+                  </li>
+                ))}
+              {!hasActivities && <li className="list-group-item text-danger">You haven't activities</li>}
+            </ul>
+          </div>
         </div>
       </div>
     </>
@@ -260,7 +289,7 @@ const SearchContainer: React.FC<any> = () => {
 const ListContainer: React.FC<any> = () => {
   return (
     <>
-      <Test />
+      <MyActivities />
     </>
   );
 };
