@@ -12,17 +12,27 @@ export const http = httpFactory({
 
 export const fetchActivity = (
   params?: Partial<IActivityParams>
-): Promise<IActivity> => {
+): Promise<IActivity | Error> => {
   return http
     .get<IActivity>("/api/activity", { params })
-    .then(({ request }) => {
+    .then<IActivity>(({ request }) => {
+      const hasError = _.has(request.response, "error");
+      if (hasError) {
+        let error: string = _.get(request.response, "error", null);
+        throw new Error(error);
+      }
+
       let activity: IActivity = request.response;
       return activity;
+    })
+    .catch<Error>((error: Error) => {
+      console.warn(error);
+      throw error;
     });
 };
 
-export const fetchActivities = (keys: string[]): Promise<IActivity[]> => {
-  return Promise.all<IActivity>(
+export const fetchActivities = (keys: string[]): Promise<IActivity[] | any> => {
+  return Promise.all<IActivity | any>(
     _.map(keys, (key: string) => {
       return Promise.resolve(fetchActivity({ key }));
     })

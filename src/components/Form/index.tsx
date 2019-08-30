@@ -244,6 +244,6 @@ InputBox.propTypes = {
   onChange: PropTypes.func
 };
 
-export const Form: React.FC<any> = ({ children }) => {
-  return <form>{children}</form>;
+export const Form: React.FC<any> = ({ children, ...props }) => {
+  return <form {...props}>{children}</form>;
 };
